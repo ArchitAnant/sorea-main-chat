@@ -6,7 +6,10 @@ import datetime
 import logging
 
 BASE_URL = "http://localhost:7071"
-
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s'
+)
 
 def wait_for_startup(url):
     """Wait for Azure Functions host to start responding."""
