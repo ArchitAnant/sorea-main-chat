@@ -60,7 +60,7 @@ test_output/
 serviceAccountKey.json
 mybro-a1ea5-firebase-adminsdk-xxxx-xxxxxxxx.json
 *.json 
-!function/local.setting.json
+!function/local.settings.json
 !host.json
 temp*
 
