@@ -2,6 +2,7 @@ import requests
 import time
 import os
 import re
+import datetime
 
 BASE_URL = "http://localhost:7071"
 
@@ -46,6 +47,11 @@ def test_endpoints():
     """Verify each endpoint returns HTTP 200."""
     ENDPOINTS = gather_endpoints()
 
+    paylod = {
+        'email' : 'test.sorea@gmail.com',
+        'message' : f'Hello, this is a test message.{datetime.datetime.now()}'
+    }
+
     # Use a simple endpoint as healthcheck if available
     healthcheck = f"{BASE_URL}{ENDPOINTS[0] if ENDPOINTS else '/api/health'}"
 
@@ -55,6 +61,10 @@ def test_endpoints():
         url = BASE_URL + ep
         print(f"Testing: {url}")
 
-        res = requests.get(url, timeout=5)
+        res = requests.post(url, json=paylod)
+        print(f"Response Code: {res.status_code}")
+        print(f"Response Body: {res.text}")
 
         assert res.status_code == 200, f"Endpoint {ep} failed → {res.status_code}"
+
+test_endpoints()
