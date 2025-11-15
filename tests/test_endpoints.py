@@ -3,6 +3,7 @@ import time
 import os
 import re
 import datetime
+import logging
 
 BASE_URL = "http://localhost:7071"
 
@@ -19,6 +20,7 @@ def wait_for_startup(url):
 
 
 def gather_endpoints():
+    logging.info("[BUILD] Gathering endpoints.")
     """Extract @app.route(route='...') routes from function_app.py."""
     target_file = os.path.join("function", "function_app.py")
 
@@ -58,13 +60,12 @@ def test_endpoints():
     assert wait_for_startup(healthcheck), "Azure Functions host didn't start."
 
     for ep in ENDPOINTS:
+        logging.info(f"[TEST] Testing endpoint: {ep}")
         url = BASE_URL + ep
         print(f"Testing: {url}")
 
         res = requests.post(url, json=paylod)
-        print(f"Response Code: {res.status_code}")
-        print(f"Response Body: {res.text}")
 
         assert res.status_code == 200, f"Endpoint {ep} failed → {res.status_code}"
-
-test_endpoints()
+    
+    logging.info("[TEST] All endpoints passed.")
