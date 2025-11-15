@@ -23,7 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r function/requirements.txt
         pip install pytest requests
-        
+
     - name: Create local.settings.json
       run: |
         cat <<EOF > function/local.settings.json
@@ -58,8 +58,8 @@ jobs:
     - name: Start Azure Functions Host
       run: |
         cd function
-        func start &
-        sleep 10
+        func start --python &
+        sleep 15
 
     - name: Run Test
       run: pytest -v
