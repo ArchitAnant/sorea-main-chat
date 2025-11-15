@@ -1,3 +1,10 @@
+name: Main Chat Function
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -10,13 +17,13 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r function/requirements.txt
         pip install pytest requests
-
+        
     - name: Create local.settings.json
       run: |
         cat <<EOF > function/local.settings.json
@@ -43,15 +50,16 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-
-    - name: Install Azure Function Core Tools
-      run: npm install -g azure-functions-core-tools@4 --unsafe-perm true
-
-    - name: Start Azure Functions Host (Python)
-      working-directory: function
+    
+    - name: Install Azure Func Core tools
       run: |
-        func start --python &
-        sleep 15
+        npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+    - name: Start Azure Functions Host
+      run: |
+        cd function
+        func start &
+        sleep 10
 
     - name: Run Test
       run: pytest -v
