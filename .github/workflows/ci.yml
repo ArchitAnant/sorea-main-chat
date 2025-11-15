@@ -35,6 +35,7 @@ jobs:
 
     - name: Start Azure Functions Host
       run: |
+        cd function
         func start &
         sleep 10
 
