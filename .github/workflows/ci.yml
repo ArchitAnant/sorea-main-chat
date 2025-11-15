@@ -36,6 +36,7 @@ jobs:
     - name: Start Azure Functions Host
       run: |
         cd function
+        FUNCTIONS_WORKER_RUNTIME=python func start --verbose --non-interactive &
         func start &
         sleep 10
 
