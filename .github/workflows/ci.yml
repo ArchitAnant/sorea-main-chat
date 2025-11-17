@@ -62,10 +62,16 @@ jobs:
         sleep 15
 
     - name: Initial Wake Test for All Endpoints 
-      run: pytest -v -s tests/test_intial.py
+      run: |
+        cd tests
+        pytest -v -s test_intial.py
     
     - name: Chat API Test
-      run: pytest -v -s tests/test_chat.py
+      run: |
+        cd tests
+        pytest -v -s test_chat.py
 
     - name: Notification API Test
-      run: pytest -v -s tests/test_notification.py
+      run: |
+        cd tests
+        pytest -v -s test_notification.py

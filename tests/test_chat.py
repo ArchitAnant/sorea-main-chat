@@ -1,7 +1,7 @@
 # File: tests/test_chat.py
 
 import requests
-from tests.helpers import BASE_URL
+from helpers import BASE_URL
 
 def test_chat():
     """Test for chat endpoint."""

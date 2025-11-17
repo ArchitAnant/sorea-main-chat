@@ -1,7 +1,7 @@
 # File: tests/test_notification.py
 
 import requests
-from tests.helpers import BASE_URL
+from helpers import BASE_URL
 
 def test_notification():
     """Test for notification endpoint."""
