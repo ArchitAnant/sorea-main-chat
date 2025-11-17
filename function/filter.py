@@ -17,7 +17,7 @@ class MentalHealthFilter:
     def filter(self, message: str) -> MentalHealthTopicFilter:
         """Analyze message for mental health relevance with confidence and reason."""
         
-        system_prompt = """You are a mental health topic classifier for a therapeutic chatbot named MyBro. 
+        system_prompt = """You are a mental health topic classifier for a therapeutic chatbot named Sorea. 
 
         Determine if the message is mental health related:
         MENTAL HEALTH RELATED includes:

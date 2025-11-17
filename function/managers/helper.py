@@ -138,7 +138,7 @@ class HelperManager:
         - Suggestions should be specific (not generic advice)
         - Use {name} naturally when appropriate
         - Match urgency level appropriately
-        - Each suggestion should be 1-2 sentences max
+        - Each suggestion should be 10 words max
         - Focus on practical steps they can take right now"""
 
         try:

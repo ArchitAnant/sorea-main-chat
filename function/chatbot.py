@@ -35,7 +35,7 @@ class MentalHealthChatbot:
         self.helper_manager = HelperManager(self.config)
         self.summary_manager = SummaryManager(self.config,self.firebase_manager.db)
         
-        self.system_prompt = """You are MyBro - a caring, supportive friend who adapts your response style based on what the person needs. Your personality adjusts to match the situation:
+        self.system_prompt = """You are Sorea - a caring, supportive friend who adapts your response style based on what the person needs. Your personality adjusts to match the situation:
 
         ⏰ TIME AWARENESS - VERY IMPORTANT:
         - ALWAYS acknowledge when time has passed since your last conversation
@@ -240,6 +240,19 @@ class MentalHealthChatbot:
                 self.message_manager.add_chat_pair,
                 email, message, bot_message, emotion, urgency_level
             ))
+
+            asyncio.create_task(self.writer.submit(
+                self.message_manager.add_suggestions,
+                self.helper_manager,
+                emotion,
+                urgency_level,
+                email,
+                self.firebase_manager,
+                self.message_manager,
+                message
+                
+            ))
+            
             return bot_message
         
         except Exception as e:
@@ -315,6 +328,16 @@ class MentalHealthChatbot:
             asyncio.run(self.writer.submit(
                 self.message_manager.add_chat_pair,
                 email, message, bot_message, emotion, urgency_level
+            ))
+            asyncio.run(self.writer.submit(
+                self.message_manager.add_suggestions,
+                self.helper_manager,
+                emotion,
+                urgency_level,
+                email,
+                self.firebase_manager,
+                self.message_manager,
+                message
             ))
             
             return bot_message
