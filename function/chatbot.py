@@ -177,7 +177,7 @@ Your personality adjusts to match the situation.
                 emotion=emotion,
                 urgency_level=urgency_level,
                 recent_messages=recent_messages
-            )
+            ) # type: ignore
 
         except Exception as e:
             logging.error(f"Error async conversation: {e}")
@@ -207,7 +207,7 @@ CURRENT USER STATE:
                     messages.append(HumanMessage(content=msg_pair.user_message.content))
                     messages.append(AIMessage(content=msg_pair.llm_message.content))
 
-            # Add new message
+            # Add new message okay
             messages.append(HumanMessage(content=message))
 
             # LLM CALL
