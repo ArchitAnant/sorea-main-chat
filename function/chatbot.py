@@ -120,12 +120,13 @@ class MentalHealthChatbot:
         """
         try:
             # Run initial independent blocking operations concurrently
-            (user_profile, topic_filter, emotion_urgency, recent_messages) = await asyncio.gather(
+            (user_profile, topic_filter, emotion_urgency, recent_messages) = await asyncio.gather(   
                 asyncio.to_thread(self.firebase_manager.get_user_profile, email),
-                asyncio.to_thread(self.health_filter.filter, message),
+                asyncio.to_thread(self.health_filter.filter, [message]),  # FIXED
                 asyncio.to_thread(self.helper_manager.detect_emotion, message),
-                asyncio.to_thread(self.message_manager.get_conversation, email,self.firebase_manager, None, 20)  # (email, date=None, limit=20)
-            )
+                asyncio.to_thread(self.message_manager.get_conversation, email, self.firebase_manager, None, 20)
+        )
+
 
             emotion, urgency_level = emotion_urgency
             user_name = user_profile.name
@@ -257,7 +258,7 @@ class MentalHealthChatbot:
             logging.info(f"User profile retrieved: {user_profile}")
             user_name = user_profile.name
             
-            topic_filter = self.health_filter.filter(message)
+            topic_filter = self.health_filter.filter([message]) # FIXED
             emotion, urgency_level = self.helper_manager.detect_emotion(message)
             
             if not topic_filter.is_mental_health_related:
