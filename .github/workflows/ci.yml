@@ -61,5 +61,11 @@ jobs:
         func start --python &
         sleep 15
 
-    - name: Run Test
-      run: pytest -v -o log_cli_level=INFO
+    - name: Initial Wake Test for All Endpoints 
+      run: pytest -v -s tests/test_intial.py
+    
+    - name: Chat API Test
+      run: pytest -v -s tests/test_chat.py
+
+    - name: Notification API Test
+      run: pytest -v -s tests/test_notification.py

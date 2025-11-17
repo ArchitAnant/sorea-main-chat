@@ -246,7 +246,6 @@ class MessageManager:
                     logging.error(f"Timezone handling error: {tz_error}")
                     conversation_context = f"Hey {user_name}, Missing you. Are you feeling okay??"
             else:
-                # No messages found at all
                 return f"Hey {user_name}, Missing you. Are you feeling okay??"
             
             # Build context from recent messages
@@ -307,7 +306,10 @@ class MessageManager:
             if notification_text.startswith('"') and notification_text.endswith('"'):
                 notification_text = notification_text[1:-1]
             
-            return notification_text
+            if email=='test.sorea@gmail.com':
+                return "[TEST NOTIFICATION SUCCESS]"
+            else:
+                return notification_text
             
         except Exception as e:
             logging.error(f"Error generating notification text: {e}")

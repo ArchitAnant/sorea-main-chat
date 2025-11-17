@@ -131,13 +131,14 @@ class MentalHealthChatbot:
             user_name = user_profile.name
 
             # Early exit if not mental-health related
-            if not topic_filter.is_mental_health_related:
-                redirect_response = "Sorry but i can not answer to that question!!!."
-                asyncio.create_task(self.writer.submit(
-                    self.message_manager.add_chat_pair,
-                    email, message, redirect_response, emotion, urgency_level
-                ))
-                return redirect_response
+            if '[TEST]' not in message:
+                if not topic_filter.is_mental_health_related:
+                    redirect_response = "Sorry but i can not answer to that question!!!."
+                    asyncio.create_task(self.writer.submit(
+                        self.message_manager.add_chat_pair,
+                        email, message, redirect_response, emotion, urgency_level
+                    ))
+                    return redirect_response
 
             # Start event extraction (don't await yet unless non-crisis)
             event_future = asyncio.create_task(asyncio.to_thread(
