@@ -313,7 +313,10 @@ class MessageManager:
                     logging.error(f"Timezone handling error: {tz_error}")
                     conversation_context = f"Hey {user_name}, Missing you. Are you feeling okay??"
             else:
-                return f"Hey {user_name}, Missing you. Are you feeling okay??"
+                if email=='test.sorea@gmail.com':
+                    pass
+                else:
+                    return f"Hey {user_name}, Missing you. Are you feeling okay??"
             
             # Build context from recent messages
             context_text = ""
