@@ -2,7 +2,7 @@
 
 import requests
 import datetime
-from .helpers import BASE_URL, wait_for_startup, gather_endpoints
+from tests.helpers import BASE_URL, wait_for_startup, gather_endpoints
 
 def test_endpoints():
     """Verify each endpoint returns HTTP 200."""
