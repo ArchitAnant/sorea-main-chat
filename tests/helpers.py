@@ -24,9 +24,9 @@ def wait_for_startup(url):
 def gather_endpoints():
     """Extract @app.route(route='...') routes from function_app.py."""
     print("Gathering endpoints from function_app.py...")
-    target_file = os.path.join("function", "function_app.py")
+    target_file = os.path.join("..", "function", "function_app.py")
     if not os.path.exists(target_file):
-        raise FileNotFoundError("function/function_app.py not found")
+        raise FileNotFoundError("../function/function_app.py not found")
 
     endpoints = []
     pattern = re.compile(r'@app\.route\(.*route="([^"]+)"')
