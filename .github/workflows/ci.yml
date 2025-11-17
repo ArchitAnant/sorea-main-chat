@@ -1,0 +1,77 @@
+name: Main Chat Function
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Python Setup
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r function/requirements.txt
+        pip install pytest requests
+
+    - name: Create local.settings.json
+      run: |
+        cat <<EOF > function/local.settings.json
+        {
+          "IsEncrypted": false,
+          "Values": {
+            "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+
+            "GEMINI_API_KEY": "${{ secrets.GEMINI_API_KEY }}",
+            "MODEL_NAME": "${{ secrets.MODEL_NAME }}",
+            "MAX_TOKENS": "${{ secrets.MAX_TOKENS }}",
+            "TEMPERATURE": "${{ secrets.TEMPERATURE }}",
+
+            "FIREBASE_PROJECT_ID": "${{ secrets.FIREBASE_PROJECT_ID }}",
+            "FIREBASE_PRIVATE_KEY_ID": "${{ secrets.FIREBASE_PRIVATE_KEY_ID }}",
+            "FIREBASE_CLIENT_EMAIL": "${{ secrets.FIREBASE_CLIENT_EMAIL }}",
+            "FIREBASE_CLIENT_ID": "${{ secrets.FIREBASE_CLIENT_ID }}",
+            "FIREBASE_CREDENTIALS_BASE64": "${{ secrets.FIREBASE_CREDENTIALS_BASE64 }}"
+          }
+        }
+        EOF
+
+    - name: Node Setup
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install Azure Func Core tools
+      run: |
+        npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+    - name: Start Azure Functions Host
+      run: |
+        cd function
+        func start --python &
+        sleep 15
+
+    - name: Initial Wake Test for All Endpoints 
+      run: |
+        cd tests
+        pytest -v -s test_intial.py
+    
+    - name: Chat API Test
+      run: |
+        cd tests
+        pytest -v -s test_chat.py
+
+    - name: Notification API Test
+      run: |
+        cd tests
+        pytest -v -s test_notification.py
