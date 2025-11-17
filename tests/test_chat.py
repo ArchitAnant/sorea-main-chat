@@ -13,5 +13,6 @@ def test_chat():
     }
     print(f"Testing: {url}")
     res = requests.post(url, json=payload)
-    assert res.status_code == 200, f"Chat endpoint failed → {res.status_code}"
+    return_json = res.json()
+    assert return_json['message'] == "[TEST CHAT SUCCESS]", f"Chat endpoint failed → {res.status_code}"
     print("--- Chat API Test Passed ---")

@@ -12,5 +12,6 @@ def test_notification():
     }
     print(f"Testing: {url}")
     res = requests.post(url, json=payload)
-    assert res.status_code == 200, f"Notification endpoint failed → {res.status_code}"
+    return_json = res.json()
+    assert return_json['notification'] == "[TEST NOTIFICATION SUCCESS]", f"Notification endpoint failed → {res.status_code}"
     print("--- Notification API Test Passed ---")
