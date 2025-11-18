@@ -3,73 +3,84 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from data import MentalHealthTopicFilter
 
 
-
 class MentalHealthFilter:
     """Filter to ensure conversations stay focused on mental health topics."""
     
-    def __init__(self,config):
+    def __init__(self, config):
         self.llm = ChatGoogleGenerativeAI(
             model=config.model_name,
             google_api_key=config.gemini_api_key,
             temperature=0.3 
         )
     
-    def filter(self, message: str) -> MentalHealthTopicFilter:
-        """Analyze message for mental health relevance with confidence and reason."""
+    def filter(self, last_messages: list[str]) -> MentalHealthTopicFilter:
+        """
+        Analyze last 2-3 user messages for mental health relevance with confidence and reason.
+        """
+       
+
+        system_prompt = 
+        """ You are a mental health topic classifier for a therapeutic chatbot named MyBro.
         
-        system_prompt = """You are a mental health topic classifier for a therapeutic chatbot named Sorea. 
-
-        Determine if the message is mental health related:
-        MENTAL HEALTH RELATED includes:
-        - Emotions and feelings (sad, happy, anxious, stressed, angry, excited, etc.)
-        - Mental health conditions and symptoms
-        - Life challenges, struggles, and personal issues
-        - Relationships, family, and social problems  
-        - Work stress, school pressure, life changes
-        - Sleep, self-care, and wellness topics
-        - Personal growth, therapy, and healing
-        - Greetings and check-ins ("Hi", "Hello", "How are you?")
-        - Conversation continuity ("Do you remember me?", "We talked before")
-        - Any personal questions that could lead to emotional support
-        - Casual conversation that builds therapeutic rapport
-
-        Respond EXACTLY in this format:
+        Your task:
+        - Read the LAST FEW user messages (2-3 messages) (IF PRESENTED)
+        - Determine whether the FINAL message is mental-health related.
+        
+        A message is mental-health related IF:
+        1) It directly discusses emotions, stress, anxiety, depression, relationships,
+           pressure, self-care, healing, personal struggles, or psychological well-being.
+        OR
+        2) The message connects to previous messages that were mental-health related,
+           even if the final message alone is unclear.
+        
+        Respond ONLY in this exact format:
         MENTAL_HEALTH: YES/NO
-        CONFIDENCE: 0.1-1.0
-        REASON: [brief explanation]"""
-                
+        CONFIDENCE: <0.1-1.0>
+        REASON: <short explanation>
+        """
+
+        # Format conversation
+        conversation_text = "\n".join(
+            [f"Message {i+1}: {msg}" for i, msg in enumerate(last_messages)]
+        )
+
+        final_message = last_messages[-1]
+
         messages = [
             SystemMessage(content=system_prompt),
-            HumanMessage(content=f"Analyze this message: '{message}'")
+            HumanMessage(
+                content=(
+                    f"Here are the last user messages:\n{conversation_text}\n\n"
+                    f"The FINAL message is:\n\"{final_message}\"\n\n"
+                    "Decide ONLY based on whether the FINAL message is mental health related."
+                )
+            )
         ]
-        
+
         response = self.llm.invoke(messages)
-        response_text = response.content.strip()
-        
-        # Parse the response
-        lines = response_text.split('\n')
+
+        # Safe extraction
+        response_text = (response.content or "").strip()  # type: ignore
+
+        lines = response_text.split("\n")
         is_mental_health = None
         confidence = None
         reason = None
-        
+
         for line in lines:
             if line.startswith("MENTAL_HEALTH:"):
                 is_mental_health = "YES" in line.upper()
             elif line.startswith("CONFIDENCE:"):
-                confidence = float(line.split(":", 1)[1].strip())
-                confidence = max(0.1, min(1.0, confidence))
+                try:
+                    confidence = float(line.split(":", 1)[1].strip())
+                    confidence = max(0.1, min(1.0, confidence))
+                except:
+                    confidence = 0.1
             elif line.startswith("REASON:"):
                 reason = line.split(":", 1)[1].strip()
-        
-        if is_mental_health is None:
-            raise ValueError("MENTAL_HEALTH field not found in LLM response")
-        if confidence is None:
-            raise ValueError("CONFIDENCE field not found in LLM response")
-        if reason is None:
-            raise ValueError("REASON field not found in LLM response")
-        
+
         return MentalHealthTopicFilter(
-            is_mental_health_related=is_mental_health,
-            confidence_score=confidence,
-            reason=reason
+            is_mental_health_related=bool(is_mental_health),
+            confidence_score=confidence if confidence is not None else 0.1,
+            reason=reason if reason else "LLM did not provide a reason."
         )
