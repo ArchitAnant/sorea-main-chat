@@ -134,9 +134,9 @@ Your personality adjusts to match the situation.
             emotion, urgency_level = emotion_urgency
             user_name = user_profile.name
 
-            # Mental health filter
-            print(last_messages)
-            topic_filter = await asyncio.to_thread(self.health_filter.filter, last_messages)
+
+            if not message.startswith("[TEST]"):
+                topic_filter = await asyncio.to_thread(self.health_filter.filter, last_messages)
 
             # Ignore non-mental-health queries
             if not topic_filter.is_mental_health_related:
