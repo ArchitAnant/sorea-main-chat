@@ -21,7 +21,7 @@ def test_endpoints():
     for ep in ENDPOINTS:
         url = BASE_URL + ep
         print(f"Testing: {url}")
-        res = requests.post(url, json=payload)
+        res = requests.get(url, json=payload)
         assert res.status_code == 200, f"Endpoint {ep} failed → {res.status_code}"
     
     print("--- Initial Endpoint Wake Test Passed ---")
