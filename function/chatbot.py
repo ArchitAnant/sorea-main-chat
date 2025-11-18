@@ -134,11 +134,8 @@ Your personality adjusts to match the situation.
             emotion, urgency_level = emotion_urgency
             user_name = user_profile.name
 
-            # ⚡ TEST BYPASS (NO LLM)
-            if message.startswith("[TEST]"):
-                return "[TEST CHAT SUCCESS]"
-
             # Mental health filter
+            print(last_messages)
             topic_filter = await asyncio.to_thread(self.health_filter.filter, last_messages)
 
             # Ignore non-mental-health queries

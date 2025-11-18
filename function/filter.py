@@ -15,7 +15,7 @@ class MentalHealthFilter:
     
     def filter(self, last_messages: list[str]) -> MentalHealthTopicFilter:
         """
-        Analyze last 2–3 user messages for mental health relevance with confidence and reason.
+        Analyze last 2-3 user messages for mental health relevance with confidence and reason.
         """
         
         # Ensure input is correct
@@ -26,7 +26,7 @@ class MentalHealthFilter:
         You are a mental health topic classifier for a therapeutic chatbot named MyBro.
         
         Your task:
-        - Read the LAST FEW user messages (2–3 messages)
+        - Read the LAST FEW user messages (2-3 messages) (IF PRESENTED)
         - Determine whether the FINAL message is mental-health related.
         
         A message is mental-health related IF:
@@ -38,7 +38,7 @@ class MentalHealthFilter:
         
         Respond ONLY in this exact format:
         MENTAL_HEALTH: YES/NO
-        CONFIDENCE: <0.1–1.0>
+        CONFIDENCE: <0.1-1.0>
         REASON: <short explanation>
         """
 
