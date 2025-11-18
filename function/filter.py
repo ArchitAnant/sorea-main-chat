@@ -19,8 +19,7 @@ class MentalHealthFilter:
         """
        
 
-        system_prompt = 
-        """ You are a mental health topic classifier for a therapeutic chatbot named MyBro.
+        system_prompt = """ You are a mental health topic classifier for a therapeutic chatbot named MyBro.
         
         Your task:
         - Read the LAST FEW user messages (2-3 messages) (IF PRESENTED)
