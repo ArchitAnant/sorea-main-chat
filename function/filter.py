@@ -17,13 +17,9 @@ class MentalHealthFilter:
         """
         Analyze last 2-3 user messages for mental health relevance with confidence and reason.
         """
-        
-        # Ensure input is correct
-        if not isinstance(last_messages, list) or len(last_messages) == 0:
-            raise ValueError("last_messages must be a non-empty list of strings.")
+       
 
-        system_prompt = """
-        You are a mental health topic classifier for a therapeutic chatbot named MyBro.
+        system_prompt = """ You are a mental health topic classifier for a therapeutic chatbot named MyBro.
         
         Your task:
         - Read the LAST FEW user messages (2-3 messages) (IF PRESENTED)

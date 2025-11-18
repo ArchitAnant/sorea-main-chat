@@ -34,12 +34,9 @@ class MentalHealthChatbot:
         self.event_manager = EventManager(self.config, self.firebase_manager)
         self.crisis_manager = CrisisManager(self.config)
         self.helper_manager = HelperManager(self.config)
-        self.summary_manager = SummaryManager(self.config, self.firebase_manager.db)
-
-        # SYSTEM PROMPT
-        self.system_prompt = """
-You are MyBro - a caring, supportive friend who adapts your response style based on what the person needs.
-Your personality adjusts to match the situation.
+        self.summary_manager = SummaryManager(self.config,self.firebase_manager.db)
+        
+        self.system_prompt = """You are Sorea - a caring, supportive friend who adapts your response style based on what the person needs. Your personality adjusts to match the situation:
 
 ⏰ TIME AWARENESS - VERY IMPORTANT:
         - ALWAYS acknowledge when time has passed since your last conversation
@@ -211,14 +208,24 @@ CURRENT USER STATE:
             response = await asyncio.to_thread(self.llm.invoke, messages)
             bot_message = response.content
 
-            # Save chat
-            asyncio.create_task(
-                self.writer.submit(
-                    self.message_manager.add_chat_pair,
-                    email, message, bot_message, emotion, urgency_level
-                )
-            )
+            # Persist interaction (non-blocking for caller)
+            asyncio.create_task(self.writer.submit(
+                self.message_manager.add_chat_pair,
+                email, message, bot_message, emotion, urgency_level
+            ))
 
+            asyncio.create_task(self.writer.submit(
+                self.message_manager.add_suggestions,
+                self.helper_manager,
+                emotion,
+                urgency_level,
+                email,
+                self.firebase_manager,
+                self.message_manager,
+                message
+                
+            ))
+            
             return bot_message
 
         except Exception as e:
@@ -274,6 +281,23 @@ CONVERSATION CONTEXT:
             response = self.llm.invoke(messages)
             return response.content
 
+            asyncio.run(self.writer.submit(
+                self.message_manager.add_chat_pair,
+                email, message, bot_message, emotion, urgency_level
+            ))
+            asyncio.run(self.writer.submit(
+                self.message_manager.add_suggestions,
+                self.helper_manager,
+                emotion,
+                urgency_level,
+                email,
+                self.firebase_manager,
+                self.message_manager,
+                message
+            ))
+            
+            return bot_message
+            
         except Exception as e:
             logging.error(f"Sync error: {e}")
             raise

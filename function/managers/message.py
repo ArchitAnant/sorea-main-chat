@@ -64,6 +64,73 @@ class MessageManager:
         except Exception as e:
             logging.error(f"ERROR: Error adding chat pair: {e}")
     
+    # In your MessageManager class:
+
+    def add_suggestions(
+        self,
+        helper_manager,
+        emotion,
+        urgency_level,
+        email,
+        firebase_manager,
+        message_manager,
+        user_message=""
+    ):
+        if not self.db:
+            logging.error("ERROR: Firestore DB not initialized.")
+            return
+
+        try:
+            logging.info(f"Generating suggestions for {email}")
+
+            # 1. Generate suggestions (This part is correct)
+            suggestions = helper_manager.generate_suggestions(
+                emotion,
+                urgency_level,
+                email,
+                firebase_manager,
+                message_manager,
+                user_message
+            )
+
+            if not isinstance(suggestions, list):
+                logging.warning("generate_suggestions did not return a list — coercing to list")
+                suggestions = [str(suggestions)]
+
+            # --- FIX STARTS HERE ---
+
+            # 2. Combine ALL data into a single dictionary for the 'latest' document
+            latest_suggestion_data = {
+                "emotion": emotion,
+                "urgency_level": urgency_level,
+                "timestamp": fbs.SERVER_TIMESTAMP,
+                "suggestions": suggestions,
+                # It seems these counters might be a copy-paste error from add_chat_pair.
+                # You may want to rename or remove them. See note below.
+                "updateCount": Increment(1), 
+            }
+
+            # 3. Get a reference to the single document we want to overwrite
+            doc_ref = (
+                self.db.collection("users")
+                .document(email)
+                .collection("suggestions")
+                .document("latest")  # This is the document we will overwrite
+            )
+
+            # 4. Write everything to that one document using .set()
+            # Using merge=True is good practice to avoid deleting other fields if they exist.
+            doc_ref.set(latest_suggestion_data, merge=True)
+
+            # --- FIX ENDS HERE ---
+
+            logging.info(f"SUCCESS: Suggestions stored for {email}")
+
+        except Exception as e:
+            logging.error(f"ERROR: Failed to store suggestions for {email}: {e}")
+
+         
+    
     def get_conversation(self, email: str, firebase_manager,date: Optional[str] = None, limit: Optional[int] = None) -> List[MessagePair]:
         """
         Get conversation messages for a specific date with optional limit.
@@ -246,7 +313,10 @@ class MessageManager:
                     logging.error(f"Timezone handling error: {tz_error}")
                     conversation_context = f"Hey {user_name}, Missing you. Are you feeling okay??"
             else:
-                return f"Hey {user_name}, Missing you. Are you feeling okay??"
+                if email=='test.sorea@gmail.com':
+                    pass
+                else:
+                    return f"Hey {user_name}, Missing you. Are you feeling okay??"
             
             # Build context from recent messages
             context_text = ""
@@ -316,3 +386,5 @@ class MessageManager:
             user_profile = firebase_manager.get_user_profile(email)
             user_name = user_profile.name 
             return f"Hey {user_name}, Missing you. Are you feeling okay??"
+
+

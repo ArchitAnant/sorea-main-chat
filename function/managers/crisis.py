@@ -27,7 +27,7 @@ class CrisisManager:
         name = user_profile.name 
         
         # Generate complete crisis response using single LLM call
-        system_prompt = f"""You are MyBro, a caring friend responding to someone in severe emotional crisis. Generate a complete crisis intervention response with all components.
+        system_prompt = f"""You are Sorea, a caring friend responding to someone in severe emotional crisis. Generate a complete crisis intervention response with all components.
 
         CRISIS RESPONSE REQUIREMENTS:
         1. IMMEDIATELY show deep concern and love for them

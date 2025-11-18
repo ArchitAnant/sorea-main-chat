@@ -1,0 +1,90 @@
+name: Deploy Azure Function with Staging Slot
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AZURE_FUNCTION_APP_NAME: ${{ secrets.AZURE_FUNCTION_APP_NAME }}
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RG }}
+  PYTHON_VERSION: '3.10'
+  FUNCTION_DIR: 'function' # Directory containing your function code
+  PACKAGE_NAME: 'function.zip'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production # Optional: Link to a GitHub environment for protection rules
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python version
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Create Python virtual environment and install dependencies
+      run: |
+        cd ${{ env.FUNCTION_DIR }}
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+
+    - name: Zip Function App for deployment
+      run: |
+        cd ${{ env.FUNCTION_DIR }}
+        zip -r ../${{ env.PACKAGE_NAME }} .
+
+    # Authenticate to Azure before using Azure CLI or deploying
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Staging Slot
+      uses: azure/functions-action@v1
+      with:
+        app-name: ${{ env.AZURE_FUNCTION_APP_NAME }}
+        slot-name: "staging"
+        package: ${{ env.PACKAGE_NAME }}
+        # NOTE: The publish-profile is not needed if you use azure/login
+        # It's better to use azure/login as it works for all subsequent Azure steps.
+
+    - name: Health Check Staging Slot with Retry
+      run: |
+        STAGING_URL="https://${{ env.AZURE_FUNCTION_APP_NAME }}-staging.azurewebsites.net/api/health"
+        echo "Pinging staging URL: $STAGING_URL"
+        
+        for i in {1..5}; do
+          # Use --silent and --fail to only output errors and fail on HTTP error codes
+          if curl --silent --fail "$STAGING_URL"; then
+            echo "Health check passed on attempt $i."
+            exit 0
+          fi
+          echo "Health check failed on attempt $i. Retrying in 10 seconds..."
+          sleep 10
+        done
+
+        echo "Health check failed after 5 attempts."
+        exit 1
+        
+    - name: Swap Staging to Production
+      # This step only runs if the health check step above succeeds
+      if: success()
+      uses: azure/cli@v2
+      with:
+        inlineScript: |
+          echo "Health check passed. Swapping staging slot into production."
+          az functionapp deployment slot swap \
+            --name ${{ env.AZURE_FUNCTION_APP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --slot staging \
+            --target-slot production
+
+    # The rollback step has been REMOVED.
+    # If the 'Health Check' step fails, this workflow stops.
+    # The 'Swap' step is never reached.
+    # Production remains untouched, running the last known good version.
+    # This is the correct and safest rollback strategy.

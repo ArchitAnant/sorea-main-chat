@@ -20,6 +20,14 @@ CORS_HEADERS = {
 }
 
 
+@app.route(route="health", methods=["GET"])
+def health(req: func.HttpRequest) -> func.HttpResponse:
+    return func.HttpResponse(
+        "OK",
+        status_code=200,
+        headers=CORS_HEADERS
+    )
+
 # dummy function to check if firebase is working
 @app.route(route="check_firebase", auth_level=func.AuthLevel.FUNCTION)
 def check_firebase(req: func.HttpRequest) -> func.HttpResponse:

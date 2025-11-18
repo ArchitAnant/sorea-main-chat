@@ -173,7 +173,7 @@ class EventManager:
         events_text = "\n".join(events_context)
         events_summary = ", ".join(event_details)
         
-        system_prompt = f"""You are MyBro, a caring friend who remembers important events in people's lives. Generate a warm, personalized greeting that asks about multiple important events. 
+        system_prompt = f"""You are Sorea, a caring friend who remembers important events in people's lives. Generate a warm, personalized greeting that asks about multiple important events. 
 
         GUIDELINES:
         - Be genuinely caring and show you remember all the events
